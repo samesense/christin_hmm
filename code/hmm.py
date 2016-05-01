@@ -12,7 +12,7 @@ def loadRows(datFile):
 def main(args):
     model = yahmm.Model(name='peaks')
     sequence = loadRows(args.datFile)
-    emissionParams = { 'low':(30,10), 'high':(100,20) }
+    emissionParams = { 'low':(30,10), 'high':(90,30) }
     low = yahmm.State( yahmm.NormalDistribution(*emissionParams['low']), name='low')
     high = yahmm.State( yahmm.NormalDistribution(*emissionParams['high']), name='high')
 
@@ -34,12 +34,12 @@ def main(args):
     model.train([sequence])
 
     viterbi_prob, viterbi_path = model.viterbi(sequence)
-    path = [ state[1].name for state in viterbi_path ]
+    path = [ state[1].name for state in viterbi_path[1:] ]
     with open(args.outFile, 'w') as fout, open(args.datFile) as f:
+        print('time\tthermo_temp\tstate', file=fout)
         reader = csv.DictReader(f, delimiter='\t')
         i = 0
         for row in reader:
-            print( i, path[i],  len(viterbi_path) )
             ls = (row['time'], row['thermo_temp'], path[i])
             print( '\t'.join(ls), file=fout )
             i += 1
