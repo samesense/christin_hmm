@@ -1,4 +1,6 @@
-import xlrd, argparse
+"""Find limits of batch ranges in absolute time."""
+import argparse, csv, xlrd
+from datetime import datetime
 
 def main(args):
     book = xlrd.open_workbook(args.xlsxFile)
@@ -9,15 +11,16 @@ def main(args):
         for row in range(0, first_sheet.nrows):
             temp = first_sheet.row_values(row)[3]
             if isinstance(temp, float):
-                print(str(first_sheet.row_values(row)[1]) + '\t' + str(temp), file=fout)
+                excelTime = xlrd.xldate_as_tuple(first_sheet.row(row)[1].value, book.datemode)
+                myTime = datetime(*excelTime)
+                print(str(myTime) + '\t' + str(temp), file=fout)
 
 if __name__ == "__main__":
-    desc = 'Pull significant read IDs.'
+    desc = 'Find ranges for batches in each file.'
     parser = argparse.ArgumentParser(description=desc)
     argLs = ('xlsxFile', 'outFile',)
     for param in argLs:
         parser.add_argument(param)
     args = parser.parse_args()
     main(args)
-
 

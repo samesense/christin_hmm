@@ -5,9 +5,10 @@ import argparse, csv, copy
 
 def main(args):
     currentState = '-1'
+    batch = 0
     acc = []
     with open(args.hmmFile) as f, open(args.outFile, 'w') as fout:
-        print('time\tthermo_temp\thighest', file=fout)
+        print('time\tthermo_temp\thighest\tbatch', file=fout)
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
             state = row['state']
@@ -19,12 +20,13 @@ def main(args):
                         highest = max( [a[0] for a in acc] )
                         for t,ts in acc:
                             isHighest = t==highest
-                            printLs = ( ts, str(t), str(isHighest) )
+                            printLs = ( ts, str(t), str(isHighest), str(batch) )
                             print('\t'.join(printLs), file=fout)
                     acc = []
+                    batch += 1
                 currentState = state
             elif state == 'high':
-                acc.append( (float(row['thermo_temp']), row['time'] ) )
+                acc.append( (float(row['thermo_temp']), row['time'], str(batch) ) )
 
 if __name__ == "__main__":
     desc = 'Pull high intervals.'
