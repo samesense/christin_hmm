@@ -12,7 +12,7 @@ def loadRows(datFile):
 def main(args):
     model = yahmm.Model(name='peaks')
     sequence = loadRows(args.datFile)
-    emissionParams = { 'low':(30,10), 'high':(90,30) }
+    emissionParams = { 'low':(40,40), 'high':(120,30) }
     low = yahmm.State( yahmm.NormalDistribution(*emissionParams['low']), name='low')
     high = yahmm.State( yahmm.NormalDistribution(*emissionParams['high']), name='high')
 

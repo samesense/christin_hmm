@@ -1,4 +1,4 @@
-import argparse, csv
+import argparse, csv, datetime
 
 def loadRanges(rangeFile):
     ranges = []
@@ -9,7 +9,7 @@ def loadRanges(rangeFile):
             ranges.append(r)
     return ranges
 
-def findBatch(ranges, row, rangeCounter):
+def findBatch(ranges, row, rangeCounter, batchCounter):
     t = row['time']
     st,end = ranges[rangeCounter]
     if t < st:
@@ -20,24 +20,37 @@ def findBatch(ranges, row, rangeCounter):
         return batchCounter+1, rangeCounter+1
     return batchCounter, rangeCounter
 
+# 2016-02-05 06:45:00
+fmt = '%Y-%m-%d %H:%M:%S'
+
+def convertTemp(temp):
+    z = (float(temp) * 9) / 5.0 + 32
+    return str(z)
+
 def annBatches(day, station, ranges,
                initDataFile, outFile):
     rangeCounter = 0
-    batchCounter = 0
+    batchCounter = -1
     initTime = -1
     with open(initDataFile) as f, open(outFile, 'w') as fout:
-        print('day\tstation\trawTime\trelTime\tbatch')
-        reader = csv.DictReader(initDataFile, delimiter='\t')
+        print('day\tstation\trawTime\trelTime\tbatch\ttempF', file=fout)
+        reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
-            batchCounter, rangeCounter = findBatch(ranges, row, rangeCounter, batchCounter)
-            if batchCounter != -1:
-                initTime = row[time]
-            if batch != -1:
+            newBatchCounter, newRangeCounter = findBatch(ranges, row, rangeCounter, batchCounter)
+            if batchCounter != newBatchCounter:
+                initTime = datetime.datetime.strptime(row['time'], fmt)
+            if newBatchCounter != -1:
                 # fix this w/ datetime
-                relTime = initTime - row['time']
+                thisTime = datetime.datetime.strptime(row['time'], fmt)
+                relTime = thisTime - initTime
                 printLs = ( day, station, row['time'],
-                            relTime, str(batchCounter) )
+                            str(relTime), str(newBatchCounter),
+                            convertTemp(row['thermo_temp']))
                 print('\t'.join(printLs), file=fout)
+            batchCounter = newBatchCounter
+            rangeCounter = newRangeCounter
+            if rangeCounter == len(ranges):
+                break
 
 def main(args):
     ranges = loadRanges(args.rangeFile)
