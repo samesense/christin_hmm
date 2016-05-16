@@ -1,7 +1,25 @@
 import os, csv, datetime
 
 STATIONS = ('Banbury', 'Cal#1_in', 'mill', 'scratcher_out', 'scratcher_in', 'sheeter_in', 'sheeter_out')
-DAYS = ('020516', '020216', '042916', '042816', ) #'042716'
+STATIONS_NO_CALL = ('Banbury', 'mill', 'scratcher_out', 'scratcher_in', 'sheeter_in', 'sheeter_out')
+STATIONS_NO_MILL = ('Banbury', 'Cal#1_in', 'scratcher_out', 'scratcher_in', 'sheeter_in', 'sheeter_out')
+STATIONS_NO_SH = ('Banbury', 'Cal#1_in', 'mill', 'scratcher_out', 'scratcher_in', 'sheeter_in',)
+
+DAYS = {'011316':STATIONS,
+        '011916':STATIONS,
+        '012016':STATIONS,
+        '012116':STATIONS,
+        '012216':STATIONS,
+        '020116':STATIONS,
+        '020216':STATIONS,
+        '020416':STATIONS,
+        '020516':STATIONS,
+        '042716':STATIONS_NO_SH,
+        '042816':STATIONS,
+        '042916':STATIONS,
+        '050616':STATIONS_NO_CALL}
+
+#        '121415':STATIONS_NO_MILL,}
 
 def loadDays():
     ls = [x.split('.')[0] for x in os.listdir('../data/')
@@ -12,7 +30,6 @@ rule parseData:
     input:  '../data/raw/{day}.xlsx'
     output: '../data/parsed/{day}'
     shell:  'python parseData.py {input} {output}'
-
 
 rule hmm:
     input: '../data/parsed/{day}'
@@ -30,7 +47,8 @@ rule calcShift:
     input:  '../work/ann_high/Banbury_{day}',
             '../work/ann_high/{station}_{day}',
             '../work/ann/{station}_{day}'
-    output: '../work/batchRanges/{station}_{day}'
+    output: '../work/batchRanges/{station}_{day}',
+            '../work/starts/{station}_{day}.txt'
     shell:  'python calcBatchRanges.py {wildcards.station} {input} {output}'
 
 rule formatData:
@@ -40,10 +58,13 @@ rule formatData:
     output: '../work/formatted/{station}_{day}'
     shell:  'python formatData.py {wildcards.day} {wildcards.station} {input} {output}'
 
+def getStations(wc):
+    return [ '../work/formatted/%s_%s' % (station, wc.day)
+             for station in DAYS[wc.day] ]
+
 rule collapseData:
-    input: expand('../work/formatted/{station}_{{day}}', \
-                  station = STATIONS)
-    output: '../out/{day}.xls'
+    input: getStations
+    output: '../out/{day}.tab'
     run:
         files = list(input)
         shell('head -1 %s > {output}' % (files[0],))
@@ -51,7 +72,7 @@ rule collapseData:
             shell('tail -n +2 {afile} >> {output}')
 
 rule tmp:
-    input: '../work/ann_high/Banbury_020216'
+    input: '../work/formatted/sheeter_in_042716'
 
 rule all:
-    input: expand( '../out/{day}.xls', day=DAYS )
+    input: expand( '../out/{day}.tab', day=DAYS )

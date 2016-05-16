@@ -36,20 +36,21 @@ def annBatches(day, station, ranges,
         print('day\tstation\trawTime\trelTime\tbatch\ttempF', file=fout)
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
+            #print(ranges[rangeCounter], row)
             newBatchCounter, newRangeCounter = findBatch(ranges, row, rangeCounter, batchCounter)
             if batchCounter != newBatchCounter:
                 initTime = datetime.datetime.strptime(row['time'], fmt)
             if newBatchCounter != -1:
                 # fix this w/ datetime
                 thisTime = datetime.datetime.strptime(row['time'], fmt)
-                relTime = thisTime - initTime
-                printLs = ( day, station, row['time'],
+                relTime = (thisTime - initTime).total_seconds()
+                printLs = ( day, station, str(row['time']).split()[1],
                             str(relTime), str(newBatchCounter),
                             convertTemp(row['thermo_temp']))
                 print('\t'.join(printLs), file=fout)
             batchCounter = newBatchCounter
             rangeCounter = newRangeCounter
-            if rangeCounter == len(ranges):
+            if rangeCounter == len(ranges)+1:
                 break
 
 def main(args):
