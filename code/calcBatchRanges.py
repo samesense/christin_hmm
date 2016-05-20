@@ -26,10 +26,11 @@ def printBanburyRanges(highFile, initFile, outFile, outStartFile):
                 elif lastState == 'low':
                     # new batch
                     end = lastTime
-                    print(st + '\t' + end, file=fout)
+                    if st != '-1':
+                        print(st + '\t' + end, file=fout)
                     st = t
                 lastState = 'high'
-            else:
+            elif lastState != '-1':
                 lastState = 'low'
             lastTime = t
         end = lastTime
@@ -67,7 +68,7 @@ def printRanges(banburyStFile, thisStFile, initFile, outFile, outStartFile):
     firstHigh = findFirstHigh(thisStFile)
     with open(outStartFile, 'w') as fout:
         print(str(firstHigh), file=fout)
-    shift = banburyStarts[0] - firstHigh
+    shift = firstHigh - banburyStarts[0]
     shiftedStarts = [ st+shift for st in banburyStarts ]
     st, lastTime, batch = '-1','-1',-1
     with open(initFile) as f, open(outFile, 'w') as fout:

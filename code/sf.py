@@ -38,8 +38,8 @@ rule hmm:
 
 rule findStarts:
     """Take start of batch as highest temp for new high region"""
-    input:  '../work/ann/Banbury_{day}'
-    output: '../work/ann_high/{Banbury}_{day}'
+    input:  '../work/ann/{station}_{day}'
+    output: '../work/ann_high/{station}_{day}'
     shell:  'python printMax.py {input} {output}'
 
 rule calcShift:
@@ -50,6 +50,9 @@ rule calcShift:
     output: '../work/batchRanges/{station}_{day}',
             '../work/starts/{station}_{day}.txt'
     shell:  'python calcBatchRanges.py {wildcards.station} {input} {output}'
+
+rule tmp:
+    input: '../work/starts/Banbury_011316.txt'
 
 rule formatData:
     """Annotate batches using ranges."""
@@ -71,8 +74,8 @@ rule collapseData:
         for afile in files:
             shell('tail -n +2 {afile} >> {output}')
 
-rule tmp:
-    input: '../work/formatted/sheeter_in_042716'
+# rule tmp:
+#     input: '../work/formatted/sheeter_in_042716'
 
 rule all:
     input: expand( '../out/{day}.tab', day=DAYS )

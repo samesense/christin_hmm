@@ -7,6 +7,21 @@ def main(args):
     currentState = '-1'
     batch = 1
     acc = []
+    tempCutOff = 100
+
+    needLowerCut = ('scratcher_out_050616',
+                    'sheeter_in_020216',
+                    'scratcher_out_042916',
+                    'scratcher_out_042716',
+                    'scratcher_out_020516',
+                    'sheeter_in_011916',
+                    'sheeter_in_011316',
+                    'scratcher_out_042816')
+
+    for nl in needLowerCut:
+        if nl in args.hmmFile:
+            tempCutOff = 50
+
     with open(args.hmmFile) as f, open(args.outFile, 'w') as fout:
         print('time\tthermo_temp\thighest\tbatch', file=fout)
         reader = csv.DictReader(f, delimiter='\t')
@@ -16,7 +31,7 @@ def main(args):
                 if state == 'high':
                     acc.append( (float(row['thermo_temp']), row['time'], batch ) )
                 elif state == 'low':
-                    if currentState == 'high' and len(acc) > 10 and max( [a[0] for a in acc] ) > 100:
+                    if currentState == 'high' and len(acc) > 10 and max( [a[0] for a in acc] ) > tempCutOff:
                         highest = max( [a[0] for a in acc] )
                         for t,ts,batch in acc:
                             isHighest = t==highest

@@ -1,27 +1,33 @@
 import argparse, csv, datetime
 
+# 2016-02-05 06:45:00
+fmt = '%Y-%m-%d %H:%M:%S'
+
 def loadRanges(rangeFile):
     ranges = []
     with open(rangeFile) as f:
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
-            r = (row['st'], row['end'])
+            r = [ datetime.datetime.strptime(row[x], fmt) for x in ('st', 'end') ]
             ranges.append(r)
     return ranges
 
 def findBatch(ranges, row, rangeCounter, batchCounter):
-    t = row['time']
+    t = datetime.datetime.strptime(row['time'], fmt)
     st,end = ranges[rangeCounter]
-    if t < st:
-        return -1, rangeCounter
+    #print(st,end,t, t < end)
+    if batchCounter == -1:
+        if t == st:
+            return batchCounter+1, rangeCounter+1
+    if t <= end:
+        # stay on same batch
+        return batchCounter, rangeCounter
     if t > end:
-        if batchCounter == -1:
-            batchCounter = 0
+        # move to new batch
+        #print('here')
         return batchCounter+1, rangeCounter+1
-    return batchCounter, rangeCounter
+#    return batchCounter, rangeCounter
 
-# 2016-02-05 06:45:00
-fmt = '%Y-%m-%d %H:%M:%S'
 
 def convertTemp(temp):
     z = (float(temp) * 9) / 5.0 + 32
