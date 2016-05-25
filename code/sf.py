@@ -40,7 +40,11 @@ rule findStarts:
     """Take start of batch as highest temp for new high region"""
     input:  '../work/ann/{station}_{day}'
     output: '../work/ann_high/{station}_{day}'
-    shell:  'python printMax.py {input} {output}'
+    run:
+        if wildcards.station == 'Banbury':
+            shell('python printMax.py 10 {input} {output}')
+        else:
+            shell('python printMax.py 4 {input} {output}')
 
 rule calcShift:
     """Using start from banbury files, find diff between initial starts"""

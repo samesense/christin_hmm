@@ -31,7 +31,7 @@ def main(args):
                 if state == 'high':
                     acc.append( (float(row['thermo_temp']), row['time'], batch ) )
                 elif state == 'low':
-                    if currentState == 'high' and len(acc) > 10 and max( [a[0] for a in acc] ) > tempCutOff:
+                    if currentState == 'high' and len(acc) > int(args.highLenCut) and max( [a[0] for a in acc] ) > tempCutOff:
                         highest = max( [a[0] for a in acc] )
                         for t,ts,batch in acc:
                             isHighest = t==highest
@@ -46,7 +46,7 @@ def main(args):
 if __name__ == "__main__":
     desc = 'Pull high intervals.'
     parser = argparse.ArgumentParser(description=desc)
-    argLs = ('hmmFile', 'outFile',)
+    argLs = ('highLenCut', 'hmmFile', 'outFile',)
     for param in argLs:
         parser.add_argument(param)
     args = parser.parse_args()
