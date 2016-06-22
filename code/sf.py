@@ -1,6 +1,9 @@
 import os, csv, datetime
 
 STATIONS = ('Banbury', 'Cal#1_in', 'mill', 'scratcher_out', 'scratcher_in', 'sheeter_in', 'sheeter_out')
+STATIONS_NO_IN = ('Banbury', 'Cal#1_in', 'mill', 'scratcher_in', 'sheeter_out')
+STATIONS_NO_IN_NO_CALIN = ('Banbury', 'mill', 'scratcher_in', 'sheeter_out')
+STATIONS_NO_IN_NO_CAL = ('Banbury', 'scratcher_in', 'mill', 'scratcher_in', 'sheeter_out')
 STATIONS_NO_CALL = ('Banbury', 'mill', 'scratcher_out', 'scratcher_in', 'sheeter_in', 'sheeter_out')
 STATIONS_NO_MILL = ('Banbury', 'Cal#1_in', 'scratcher_out', 'scratcher_in', 'sheeter_in', 'sheeter_out')
 STATIONS_NO_SH = ('Banbury', 'Cal#1_in', 'mill', 'scratcher_out', 'scratcher_in', 'sheeter_in',)
@@ -17,7 +20,11 @@ DAYS = {'011316':STATIONS,
         '042716':STATIONS_NO_SH,
         '042816':STATIONS,
         '042916':STATIONS,
-        '050616':STATIONS_NO_CALL}
+        '050616':STATIONS_NO_CALL,
+        '060616':STATIONS_NO_IN_NO_CAL,
+        '060316':STATIONS_NO_IN_NO_CAL,
+        '060216':STATIONS_NO_IN_NO_CAL,
+}
 
 #        '121415':STATIONS_NO_MILL,}
 
